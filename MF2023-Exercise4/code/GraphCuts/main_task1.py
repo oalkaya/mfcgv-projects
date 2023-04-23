@@ -35,7 +35,7 @@ def main():
 
 
     # We get maxflow = 19 for this given graph. Manual calculation also confirms that.
-    # A possible min cut is through the terminal edges between the vertices and sink.
+    # A possible min cut is through the terminal edges between the vertices and sink, this is confirmed by the labeling returning [False False False]
 
 
 if __name__ == '__main__':
