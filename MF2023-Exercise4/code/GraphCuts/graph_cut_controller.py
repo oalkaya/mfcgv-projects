@@ -66,12 +66,13 @@ class GraphCutController:
 
         # Calculate the Rp costs
         def calc_Rp_per_row(row):
+            eps = 10e-6
             # Going from pixel range 0-255 to 0-31 (shorthand for floor_divide is //)
             row = row // 8
 
             # Histogram gives the Pr(Ip | O) or Pr(Ip | B) respectively
-            Rp_fg = -np.log(hist_fg[tuple(row)])
-            Rp_bg = -np.log(hist_bg[tuple(row)])
+            Rp_fg = -np.log(hist_fg[tuple(row)] + eps)
+            Rp_bg = -np.log(hist_bg[tuple(row)] + eps)
             return np.array([lambda_param*Rp_fg, lambda_param*Rp_bg])
 
         unaries = np.apply_along_axis(calc_Rp_per_row, axis=1, arr=flattened_image)
@@ -175,7 +176,9 @@ class GraphCutController:
         :return image_segmented: image as a numpy array with red foreground, blue background
         :return image_with_background: image as a numpy array with changed background if any (None if not)
         """
-
+        mask = np.expand_dims(labels, axis=-1)
+        segmented_image = np.where(mask, image, 0)
+        return segmented_image, segmented_image
         
 
 
@@ -201,11 +204,8 @@ class GraphCutController:
         # TODO: TASK 2.4 - perform graph cut
         # Your code here
 
-        # Nodes = # non-source/sink vertices
-        # Connections = # non-terminal edges
-        # CHANGE LATER TO CALC CONNECTIONS AUTOMATICALLY
+        # CHANGE LATER TO CALC NODES & CONNECTIONS AUTOMATICALLY
         g = GraphCut(nodes=216380, connections=1725230)
-
 
         g.set_neighbors(pairwise)   
         g.set_unary(unaries)
@@ -214,10 +214,7 @@ class GraphCutController:
         print(g.minimize())
 
         # Get labels: False if node belongs to source, True if node belongs to sink
-        labels = g.get_labeling()
-
-
-
+        labels = g.get_labeling().reshape(height,width)
 
         # TODO TASK 2.4 get segmented image to the view
         segmented_image, segmented_image_with_background = self.__get_segmented_image(image_array, labels,
