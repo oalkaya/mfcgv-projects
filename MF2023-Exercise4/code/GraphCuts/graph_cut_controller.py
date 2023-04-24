@@ -155,6 +155,10 @@ class GraphCutController:
         # Convert into coo format and return      
         rows, cols, vals = np.array(pairwise_arr).T
 
+        print(rows.shape)
+        print(cols.shape)
+        print(vals.shape)
+
         return coo_matrix((vals, (rows, cols)))
 
         
