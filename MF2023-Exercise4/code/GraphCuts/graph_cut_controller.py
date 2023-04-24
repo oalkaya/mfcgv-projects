@@ -75,6 +75,7 @@ class GraphCutController:
             Rp_bg = -np.log(hist_bg[tuple(row)] + eps)
             return np.array([lambda_param*Rp_fg, lambda_param*Rp_bg])
 
+        # Fill unaries with Rp
         unaries = np.apply_along_axis(calc_Rp_per_row, axis=1, arr=flattened_image)
 
         # Fill up Ks and 0s based on seeds
