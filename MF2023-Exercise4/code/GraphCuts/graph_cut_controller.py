@@ -199,10 +199,6 @@ class GraphCutController:
 
         # Task 2.1 clone
 
-        # !!! CHANGE THIS !!!
-        labels = []
-        # !!! CHANGE THIS !!!
-
         # TODO TASK 2.4 get segmented image to the view
         segmented_image, segmented_image_with_background = self.__get_segmented_image(image_array, labels,
                                                                                       background_array)
