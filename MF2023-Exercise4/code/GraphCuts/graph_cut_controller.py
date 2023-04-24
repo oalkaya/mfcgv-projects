@@ -154,8 +154,11 @@ class GraphCutController:
                 pairwise_arr.append((p, q, adhoc_cost(flat_grey_image[p], flat_grey_image[q], 0.1, 1)))
 
 
-        # Convert into coo format and return      
-        rows, cols, vals = np.array(pairwise_arr).T
+        # Use zip to transpose the tuples
+        transposed_pairwise_arr = zip(*pairwise_arr)
+
+        # Convert each transposed sequence into a NumPy array
+        rows, cols, vals = [np.array(sequence) for sequence in transposed_pairwise_arr]
 
         return coo_matrix((vals, (rows.astype(int), cols.astype(int))))
 
