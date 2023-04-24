@@ -149,17 +149,15 @@ class GraphCutController:
         for p in range(flat_grey_image.size):
             qs = flat_neighbourhood(p, height, width)
             for q in qs:
+                # By default q is returned as numpy.float64
+
                 pairwise_arr.append((p, q, adhoc_cost(flat_grey_image[p], flat_grey_image[q], 0.1, 1)))
 
 
         # Convert into coo format and return      
         rows, cols, vals = np.array(pairwise_arr).T
 
-        print(rows.shape)
-        print(cols.shape)
-        print(vals.shape)
-
-        return coo_matrix((vals, (rows, cols)))
+        return coo_matrix((vals, (rows.astype(int), cols.astype(int))))
 
         
     # TODO TASK 2.4 get segmented image to the view
@@ -197,6 +195,10 @@ class GraphCutController:
         # Your code here
 
         # Task 2.1 clone
+
+        # !!! CHANGE THIS !!!
+        labels = []
+        # !!! CHANGE THIS !!!
 
         # TODO TASK 2.4 get segmented image to the view
         segmented_image, segmented_image_with_background = self.__get_segmented_image(image_array, labels,
