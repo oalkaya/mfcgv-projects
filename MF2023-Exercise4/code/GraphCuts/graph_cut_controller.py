@@ -204,8 +204,7 @@ class GraphCutController:
         # TODO: TASK 2.4 - perform graph cut
         # Your code here
 
-        # CHANGE LATER TO CALC NODES & CONNECTIONS AUTOMATICALLY
-        g = GraphCut(nodes=216380, connections=1725230)
+        g = GraphCut(nodes=num_pixels, connections=pairwise.size)
 
         g.set_neighbors(pairwise)   
         g.set_unary(unaries)
