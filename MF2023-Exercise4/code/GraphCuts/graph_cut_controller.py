@@ -87,6 +87,8 @@ class GraphCutController:
         # Edges to sink
         np.put(unaries[:,1], fg_K_indices, 0)
         np.put(unaries[:,1], bg_K_indices, K)
+
+        return unaries
     
 
     # TODO: TASK 2.3
