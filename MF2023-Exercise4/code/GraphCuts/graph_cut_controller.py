@@ -35,12 +35,18 @@ class GraphCutController:
 	:param histRes: resolution of the histogram
 	:return hist: color histogram
 	"""
+        # Check order later
+        pixels = image[seed[:,1], seed[:,0], :]
+        hist = np.histogramdd(pixels, hist_res)
+        hist_filtered = ndimage.gaussian_filter(hist, 0.1)
+        hist_normalized = hist_filtered / np.linalg.norm(hist_filtered)
+        return hist_normalized
+
 
     # TODO: TASK 2.2
     # Hint: Set K very high using numpy's inf parameter
     def __get_unaries(self, image, lambda_param, hist_fg, hist_bg, seed_fg, seed_bg):
         """
-
         :param image: color image as a numpy array
         :param lambda_param: lamdba as set by the user
         :param hist_fg: foreground color histogram
@@ -49,6 +55,28 @@ class GraphCutController:
         :param seed_bg: pixels marked as background by the user
         :return: unaries : Nx2 numpy array containing the unary cost for every pixels in I (N = number of pixels in I)
         """
+        # Define K
+        K = np.Inf
+
+        # Create unaries filled with 0's
+        width, height = image.size
+        unaries = np.zeros((width*height, 2))
+
+        # Fill up Ks based on seed
+        fg_K_indices = seed_fg[:,1] * width + seed_fg[:,0]
+        bg_K_indices = seed_bg[:,1] * width + seed_bg[:,0]
+    
+        np.put(unaries[:,0], fg_K_indices, K)
+        np.put(unaries[:,1], bg_K_indices, K)
+
+
+
+        # then do Rp based on histogram 
+        # histogram gives the Pr(Ip | O) etc. (then do minus log)
+        # make sure pixel index is 0-32 range not 0-255
+
+
+
         
 
     # TODO: TASK 2.3
@@ -60,6 +88,8 @@ class GraphCutController:
         :param image: color image as a numpy array
         :return: pairwise : sparse square matrix containing the pairwise costs for image
         """
+        # go from 3d to 1d for intensity
+        # append to coo, for 8-neigbourhood (ie diags included)
         
     # TODO TASK 2.4 get segmented image to the view
     def __get_segmented_image(self, image, labels, background=None):
@@ -94,6 +124,8 @@ class GraphCutController:
 
         # TODO: TASK 2.4 - perform graph cut
         # Your code here
+
+        # Task 2.1 clone
 
         # TODO TASK 2.4 get segmented image to the view
         segmented_image, segmented_image_with_background = self.__get_segmented_image(image_array, labels,
