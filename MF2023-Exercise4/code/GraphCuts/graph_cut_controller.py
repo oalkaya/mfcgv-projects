@@ -211,7 +211,7 @@ class GraphCutController:
         g.set_unary(unaries)
 
         # Minimize, returns maxflow
-        print(g.minimize())
+        g.minimize()
 
         # Get labels: False if node belongs to source, True if node belongs to sink
         labels = g.get_labeling().reshape(height,width)
