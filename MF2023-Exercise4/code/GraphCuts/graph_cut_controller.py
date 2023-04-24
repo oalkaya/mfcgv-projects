@@ -82,6 +82,7 @@ class GraphCutController:
         fg_K_indices = seed_fg[:,1] * width + seed_fg[:,0]
         bg_K_indices = seed_bg[:,1] * width + seed_bg[:,0]
   
+        # IS THE FLIP CORRECT (previously 0s then 1s)
         # Edges to source
         np.put(unaries[:,1], fg_K_indices, K)
         np.put(unaries[:,1], bg_K_indices, 0.0)
