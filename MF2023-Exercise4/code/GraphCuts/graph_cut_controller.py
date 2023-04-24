@@ -83,12 +83,12 @@ class GraphCutController:
         bg_K_indices = seed_bg[:,1] * width + seed_bg[:,0]
   
         # Edges to source
-        np.put(unaries[:,0], fg_K_indices, K)
-        np.put(unaries[:,0], bg_K_indices, 0.0)
+        np.put(unaries[:,1], fg_K_indices, K)
+        np.put(unaries[:,1], bg_K_indices, 0.0)
 
         # Edges to sink
-        np.put(unaries[:,1], fg_K_indices, 0)
-        np.put(unaries[:,1], bg_K_indices, K)
+        np.put(unaries[:,0], fg_K_indices, 0.0)
+        np.put(unaries[:,0], bg_K_indices, K)
 
         return unaries
     
