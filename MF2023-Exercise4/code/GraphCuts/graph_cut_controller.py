@@ -174,6 +174,8 @@ class GraphCutController:
         :return image_with_background: image as a numpy array with changed background if any (None if not)
         """
 
+        
+
 
     def segment_image(self, image, seed_fg, seed_bg, lambda_value, background=None):
         image_array = np.asarray(image)
@@ -197,7 +199,23 @@ class GraphCutController:
         # TODO: TASK 2.4 - perform graph cut
         # Your code here
 
-        # Task 2.1 clone
+        # Nodes = # non-source/sink vertices
+        # Connections = # non-terminal edges
+        # CHANGE LATER TO CALC CONNECTIONS AUTOMATICALLY
+        g = GraphCut(nodes=216380, connections=1725230)
+
+
+        g.set_neighbors(pairwise)   
+        g.set_unary(unaries)
+
+        # Minimize, returns maxflow
+        print(g.minimize())
+
+        # Get labels: False if node belongs to source, True if node belongs to sink
+        labels = g.get_labeling()
+
+
+
 
         # TODO TASK 2.4 get segmented image to the view
         segmented_image, segmented_image_with_background = self.__get_segmented_image(image_array, labels,
