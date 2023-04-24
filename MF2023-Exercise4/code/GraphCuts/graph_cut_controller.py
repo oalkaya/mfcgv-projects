@@ -37,7 +37,7 @@ class GraphCutController:
 	"""
         # Check order later
         pixels = image[seed[:,1], seed[:,0], :]
-        hist = np.histogramdd(pixels, hist_res)
+        hist, _ = np.histogramdd(pixels, hist_res)
         hist_filtered = ndimage.gaussian_filter(hist, 0.1)
         hist_normalized = hist_filtered / np.linalg.norm(hist_filtered)
         return hist_normalized
@@ -56,24 +56,39 @@ class GraphCutController:
         :return: unaries : Nx2 numpy array containing the unary cost for every pixels in I (N = number of pixels in I)
         """
         # Define K
-        K = np.Inf
+        K = np.inf
+        
+        # Create unaries based on image dimensions
+        _ , width, _ = image.shape
 
-        # Create unaries filled with 0's
-        width, height = image.size
-        unaries = np.zeros((width*height, 2))
+        # # Flatten the image
+        flattened_image = image.reshape(-1,3) 
 
-        # Fill up Ks based on seed
+        # Calculate the Rp costs
+        def calc_Rp_per_row(row):
+            # Going from pixel range 0-255 to 0-31 (shorthand for floor_divide is //)
+            row = row // 8
+
+            # Histogram gives the Pr(Ip | O) or Pr(Ip | B) respectively
+            Rp_fg = -np.log(hist_fg[tuple(row)])
+            Rp_bg = -np.log(hist_bg[tuple(row)])
+            return np.array([lambda_param*Rp_fg, lambda_param*Rp_bg])
+
+        unaries = np.apply_along_axis(calc_Rp_per_row, axis=1, arr=flattened_image)
+
+        # Fill up Ks and 0s based on seeds
         fg_K_indices = seed_fg[:,1] * width + seed_fg[:,0]
         bg_K_indices = seed_bg[:,1] * width + seed_bg[:,0]
-    
+  
+        # Edges to source
         np.put(unaries[:,0], fg_K_indices, K)
+        np.put(unaries[:,0], bg_K_indices, 0.0)
+
+        # Edges to sink
+        np.put(unaries[:,1], fg_K_indices, 0)
         np.put(unaries[:,1], bg_K_indices, K)
 
-
-
-        # then do Rp based on histogram 
-        # histogram gives the Pr(Ip | O) etc. (then do minus log)
-        # make sure pixel index is 0-32 range not 0-255
+        
 
 
 
