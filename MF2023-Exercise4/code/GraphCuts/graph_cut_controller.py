@@ -68,6 +68,8 @@ class GraphCutController:
         def calc_Rp_per_row(row):
             eps = 10e-6
             # Going from pixel range 0-255 to 0-31 (shorthand for floor_divide is //)
+
+            row = row.astype(int)
             row = row // 8
 
             # Histogram gives the Pr(Ip | O) or Pr(Ip | B) respectively
@@ -107,6 +109,8 @@ class GraphCutController:
 
         # Ad-hoc cost function definition
         def adhoc_cost(I1, I2, sigma, dist):
+            I1 = int(I1)
+            I2 = int(I2)
             return np.exp(-((I1 - I2)**2)/(2*(sigma**2))) / dist
         
         # Get neighbourhood in flattened index
@@ -178,9 +182,28 @@ class GraphCutController:
         :return image_segmented: image as a numpy array with red foreground, blue background
         :return image_with_background: image as a numpy array with changed background if any (None if not)
         """
+
         mask = np.expand_dims(labels, axis=-1)
-        segmented_image = np.where(mask, image, 0)
-        return segmented_image, segmented_image
+        red_image = np.empty_like(image)
+        red_image[:,:,0] = 175
+        red_image[:,:,1] = 0
+        red_image[:,:,2] = 0
+
+        blue_image = np.empty_like(image)
+        blue_image[:,:,0] = 0
+        blue_image[:,:,1] = 0
+        blue_image[:,:,2] = 100
+        segmented_image = np.where(mask, red_image, blue_image)
+
+        if(background is None):
+            return segmented_image, segmented_image
+
+        else:
+            background_im = Image.fromarray(background)
+            background_im = background_im.resize((image.shape[1], image.shape[0]))
+            background = np.array(background_im)
+            with_background = np.where(mask, image, background)
+            return segmented_image, with_background
         
 
 
