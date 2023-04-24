@@ -87,12 +87,7 @@ class GraphCutController:
         # Edges to sink
         np.put(unaries[:,1], fg_K_indices, 0)
         np.put(unaries[:,1], bg_K_indices, K)
-
-        
-
-
-
-        
+    
 
     # TODO: TASK 2.3
     # Hint: Use coo_matrix from the scipy.sparse library to initialize large matrices
@@ -103,8 +98,65 @@ class GraphCutController:
         :param image: color image as a numpy array
         :return: pairwise : sparse square matrix containing the pairwise costs for image
         """
-        # go from 3d to 1d for intensity
-        # append to coo, for 8-neigbourhood (ie diags included)
+        # Some helper functions:
+
+        # Ad-hoc cost function definition
+        def adhoc_cost(I1, I2, sigma, dist):
+            return np.exp(-((I1 - I2)**2)/(2*(sigma**2))) / dist
+        
+        # Get neighbourhood in flattened index
+        def flat_neighbourhood(flat_index, height, width):
+            i = int(flat_index / width)
+            j = flat_index % width
+            
+            # Create an array of indices for the neighbors
+            neighbor_indices = np.array([
+                [i-1, j-1], [i-1, j], [i-1, j+1],
+                [i, j-1],             [i, j+1],
+                [i+1, j-1], [i+1, j], [i+1, j+1]
+            ])
+
+            # Filter out indices that are outside the matrix bounds
+            valid_indices_h = np.logical_and(
+                neighbor_indices[:, 0] >= 0,
+                neighbor_indices[:, 0] < height
+            )
+            valid_indices_w = np.logical_and(
+                neighbor_indices[:, 1] >= 0,
+                neighbor_indices[:, 1] < width
+            )
+            valid_indices = np.logical_and(valid_indices_h, valid_indices_w)
+            
+            # Get the valid neighboring indices
+            neighbor_indices = neighbor_indices[valid_indices]
+
+            # Flatten the indices to query the flattened image
+            return neighbor_indices[:,0] * width + neighbor_indices[:,1]
+        
+        # Get the pairwise terms:
+
+        # Go from 3d to 1d for intensity
+        grey_image = np.average(image, axis=2)
+
+        # Acquire image params
+        height, width = grey_image.shape
+        
+        # Flatten image
+        flat_grey_image = grey_image.flatten()
+
+        # Append to array, for 8-neigbourhood (ie diags included)
+        pairwise_arr = []
+        for p in range(flat_grey_image.size):
+            qs = flat_neighbourhood(p, height, width)
+            for q in qs:
+                pairwise_arr.append((p, q, adhoc_cost(flat_grey_image[p], flat_grey_image[q], 0.1, 1)))
+
+
+        # Convert into coo format and return      
+        rows, cols, vals = np.array(pairwise_arr).T
+
+        return coo_matrix((vals, (rows, cols)))
+
         
     # TODO TASK 2.4 get segmented image to the view
     def __get_segmented_image(self, image, labels, background=None):
