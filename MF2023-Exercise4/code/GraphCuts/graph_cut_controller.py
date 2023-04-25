@@ -36,10 +36,10 @@ class GraphCutController:
 	:return hist: color histogram
 	"""
         # Check order later
-        pixels = image[seed[:,1], seed[:,0], :]
-        hist, _ = np.histogramdd(pixels, hist_res)
+        pixels = image[seed[:,1], seed[:,0], :] 
+        hist, _ = np.histogramdd(pixels, hist_res) # add range [(0,255), (0,255), (0,255)]?
         hist_filtered = ndimage.gaussian_filter(hist, 0.1)
-        hist_normalized = hist_filtered / np.linalg.norm(hist_filtered)
+        hist_normalized = hist_filtered / np.linalg.norm(hist_filtered) # maybe try divide by sum?
         return hist_normalized
 
 
@@ -69,13 +69,13 @@ class GraphCutController:
             eps = 10e-6
             # Going from pixel range 0-255 to 0-31 (shorthand for floor_divide is //)
 
-            row = row.astype(int)
+            row = row.astype(int) # maybe remove? doesnt change res
             row = row // 8
 
             # Histogram gives the Pr(Ip | O) or Pr(Ip | B) respectively
             Rp_fg = -np.log(hist_fg[tuple(row)] + eps)
             Rp_bg = -np.log(hist_bg[tuple(row)] + eps)
-            return np.array([lambda_param*Rp_fg, lambda_param*Rp_bg])
+            return np.array([lambda_param*Rp_fg, lambda_param*Rp_bg]) # might be inverse?
 
         # Fill unaries with Rp
         unaries = np.apply_along_axis(calc_Rp_per_row, axis=1, arr=flattened_image)
@@ -86,7 +86,7 @@ class GraphCutController:
   
         # IS THE FLIP CORRECT (previously 0s then 1s)
         # Edges to source
-        np.put(unaries[:,1], fg_K_indices, K)
+        np.put(unaries[:,1], fg_K_indices, K) # since returns are fixed maybe change it again to 0 and 1?
         np.put(unaries[:,1], bg_K_indices, 0.0)
 
         # Edges to sink
@@ -145,6 +145,7 @@ class GraphCutController:
         # Get the pairwise terms:
 
         # Go from 3d to 1d for intensity
+	# Do image as type integer before?
         grey_image = np.average(image, axis=2)
 
         # Acquire image params
@@ -160,7 +161,7 @@ class GraphCutController:
             for q in qs:
                 # By default q is returned as numpy.float64
 
-                pairwise_arr.append((p, q, adhoc_cost(flat_grey_image[p], flat_grey_image[q], 0.1, 1)))
+                pairwise_arr.append((p, q, adhoc_cost(flat_grey_image[p], flat_grey_image[q], 0.1, 1))) # try sigma 5
 
 
         # Use zip to transpose the tuples
